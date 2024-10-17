@@ -3,6 +3,41 @@ const router = require('./src/Routes/api')
 const app = new express()
 
 
+// Security middleware npm packages import
+const cors = require('cors')
+const helmet = require('helmet')
+const rateLimiter = require('express-rate-limit')
+const hpp = require('hpp')
+const xssClean = require('xss-clean')
+const mongoSanitize = require('express-mongo-sanitize')
+
+
+// Security middleware Configuration
+const corsOptions = {
+    origin: [
+        'http://localhost:5173',
+        'http://localhost:5174',
+    ],
+    credentials: true,
+}
+
+
+const limiter = rateLimiter({
+    windowMs: 15 * 60 * 1000,  // 15 minutes
+    max: 100,  // Limit each IP to 100 requests per windowMs
+    message: 'Too many requests, please try again later.'
+});
+
+
+// security middleware implementation 
+app.use(cors(corsOptions))
+app.use(helmet())
+app.use(hpp())
+app.use(xssClean())
+app.use(mongoSanitize())
+app.use(limiter())
+
+
 
 app.use('/', router)
 
